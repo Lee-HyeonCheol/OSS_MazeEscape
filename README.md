@@ -5,7 +5,7 @@ This is a OSS_Design's project repository.
 
 미로 탈출 (콘솔 or 반응형 웹)
 
-<img width="152" alt="image" src="https://github.com/user-attachments/assets/ba6c3bf5-4715-4dbe-8464-f8f922de4f18" />
+<img width="152" alt="image" src="https://github.com/user-attachments/assets/78089627-7e7b-40a9-ac4e-7439daacee2c" />
 
 - 자동화 프로그램으로 미로생성
 
