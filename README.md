@@ -1,4 +1,4 @@
-# OSS_EscapeMaze
+# OSS_MazeEscape
 This is a OSS_Design's project repository.
 
 설계 기획
