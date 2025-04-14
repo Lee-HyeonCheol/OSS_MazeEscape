@@ -1,9 +1,11 @@
 # OSS_MazeEscape
-This is a OSS_Design's project repository.
+- This is a OSS_Design's project repository.
 
-미로 탈출 (반응형 웹)
+- 미로 탈출 (반응형 웹 게임)
 
-<img width="152" alt="image" src="https://github.com/user-attachments/assets/78089627-7e7b-40a9-ac4e-7439daacee2c" />
+![image](https://github.com/user-attachments/assets/f3de4124-ae08-404c-9eb8-daefefa8c657)
+
+---
 
 # 🧭 Maze Algorithm Learning Game
 
@@ -33,7 +35,7 @@ This is a OSS_Design's project repository.
 
 ## ✅ 주요 기능
 
-- [] 회원가입 / 로그인 / 로그아웃
+- [ ] 회원가입 / 로그인 / 로그아웃
 - [ ] 미로 생성 기능
 - [ ] 사용자 직접 조작 기능 (↑ ↓ ← → 이동)
 - [ ] 탈출 성공/실패 판정 및 점수 반환
