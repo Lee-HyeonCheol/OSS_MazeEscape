@@ -6,10 +6,22 @@ let size = 0;
 let startTime = null;
 let moveCount = 0;
 let hasStarted = false;
+let hasEscaped = false;
+let movePath = []; // 이동 경로 기록용 배열
+let simulationInterval = null;
 
 function generateMaze() {
 	hasStarted = false;
+	hasEscaped = false;
+	movePath = [];
     size = document.getElementById('size').value;
+
+    const simBtn = document.getElementById('simulationBtn');
+    if (simBtn) document.getElementById('simulationBtn').disabled = true;
+
+    const stopBtn = document.getElementById('stopSimulationBtn');
+    if (stopBtn) document.getElementById('stopSimulationBtn').disabled = true;
+
     fetch(`/maze/create?size=${size}`)
         .then(response => response.json())
         .then(data => {
@@ -55,6 +67,8 @@ function drawMaze() {
 }
 
 document.addEventListener('keydown', e => {
+    if (hasEscaped) return;
+
     const direction = {
         ArrowUp: [-1, 0],
         ArrowDown: [1, 0],
@@ -70,8 +84,9 @@ document.addEventListener('keydown', e => {
 
     if (nx >= 0 && ny >= 0 && nx < size && ny < size) {
         const next = mazeData[nx][ny];
-        if (next === 0 || next === 3) {
+        if (next === 0 || next === 2 || next === 3) {
             if (!hasStarted) {
+                movePath.push([playerX, playerY]);
                 startTime = performance.now();
                 moveCount = 0;
                 hasStarted = true;
@@ -79,12 +94,17 @@ document.addEventListener('keydown', e => {
 
             playerX = nx;
             playerY = ny;
+            movePath.push([playerX, playerY]);
             moveCount++;
             drawMaze();
 
             if (next === 3) {
+                hasEscaped = true;
                 const elapsedTime = ((performance.now() - startTime) / 1000).toFixed(2);
                 alert(`🏁 도착했습니다!\n⏱ 시간: ${elapsedTime}초\n🚶 이동 횟수: ${moveCount}회`);
+
+				// 기록 서버 저장
+                saveEscapeRecord();
 
                 fetch("/result/save", {
                     method: "POST",
@@ -97,7 +117,87 @@ document.addEventListener('keydown', e => {
                 })
                 .then(res => res.text())
                 .then(msg => console.log(msg));
+
+                showSimulationButton();
             }
         }
     }
 });
+
+function showSimulationButton() {
+  const simBtn = document.getElementById('simulationBtn');
+  const stopBtn = document.getElementById('stopSimulationBtn');
+
+  if (!simBtn) {
+    const btn = document.createElement('button');
+    btn.id = 'simulationBtn';
+    btn.innerText = '사용자 시뮬레이션 보기';
+    btn.onclick = playSimulation;
+    document.body.appendChild(btn);
+  }
+
+  if (stopBtn) {
+    stopBtn.style.display = 'inline-block'; // 탈출 성공 시 종료 버튼 표시
+  }
+}
+
+
+
+async function saveEscapeRecord() {
+    const payload = {
+        mazeSize: currentMazeSize,
+        elapsedTime: elapsedTime,
+        moveCount: movePath.length,
+        movePath: movePath
+    };
+
+    const res = await fetch('/result/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'include'
+    });
+
+    if (!res.ok) {
+        alert('기록 저장에 실패했습니다.');
+    } else {
+        alert('기록 저장 완료!');
+    }
+}
+
+function playSimulation() {
+  // 시뮬레이션 버튼 비활성화
+  document.getElementById('simulationBtn').disabled = true;
+  // 종료 버튼 활성화
+  document.getElementById('stopSimulationBtn').style.display = 'inline-block';
+  document.getElementById('stopSimulationBtn').disabled = false;
+
+  if (!movePath || movePath.length === 0) return;
+
+  let i = 0;
+  playerX = movePath[0][0];
+  playerY = movePath[0][1];
+  drawMaze();
+
+  simulationInterval = setInterval(() => {
+    i++;
+    if (i >= movePath.length) {
+      stopSimulation();
+      alert('시뮬레이션 종료');
+      return;
+    }
+    playerX = movePath[i][0];
+    playerY = movePath[i][1];
+    drawMaze();
+  }, 300);
+}
+
+function stopSimulation() {
+  if (simulationInterval) {
+    clearInterval(simulationInterval);
+    simulationInterval = null;
+  }
+  // 버튼 상태 초기화
+  document.getElementById('simulationBtn').disabled = false;
+  document.getElementById('stopSimulationBtn').disabled = true;
+}

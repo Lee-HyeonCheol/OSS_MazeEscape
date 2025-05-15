@@ -22,6 +22,9 @@ public class EscapeRecord {
 
     private int moveCount;
 
+    @Lob
+    private String movePathJson;  // 이동 경로 JSON 문자열로 저장
+
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

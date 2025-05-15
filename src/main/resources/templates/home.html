@@ -5,23 +5,29 @@
 	<title>홈</title>
 	<style>
 		.maze-grid {
-			display: grid;
-			gap: 2px;
-			margin-top: 20px;
+		  display: grid;
+		  gap: 2px;
+		  margin-top: 20px;
 		}
-
+	
 		.cell {
-			width: 25px;
-			height: 25px;
-			border: 1px solid #ccc;
-			box-sizing: border-box;
+		  width: 25px;
+		  height: 25px;
+		  border: 1px solid #ccc;
+		  box-sizing: border-box;
 		}
-
+	
 		.wall { background-color: black; }
 		.path { background-color: white; }
 		.start { background-color: white; }
 		.end { background-color: crimson; }
 		.player { background-color: limegreen !important; }
+	
+		/* 랭킹 강조 */
+		.my-rank {
+		  background-color: #d1ffd1 !important;
+		  font-weight: bold;
+		}
 	</style>
 </head>
 <body>
@@ -34,10 +40,10 @@
 <button onclick="openRanking()">랭킹 보기</button>
 
 <div id="rankingModal" style="
-  display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
-  background: rgba(0,0,0,0.5); justify-content:center; align-items:center;
-">
-	<iframe src="/ranking" style="width:80vw; height:80vh; border:none; background:white;"></iframe>
+    display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
+    background: rgba(0,0,0,0.5); justify-content:center; align-items:center;
+  ">
+	<iframe id="rankingIframe" src="/ranking" style="width:80vw; height:80vh; border:none; background:white;"></iframe>
 	<button onclick="closeRanking()" style="position:absolute; top:10px; right:10px;">닫기</button>
 </div>
 
@@ -48,11 +54,21 @@
 <h3>생성된 미로:</h3>
 <div id="mazeContainer"></div>
 
-<script src="/js/maze.js"></script> <!-- ✅ JS 파일 외부로 분리 -->
+<button id="stopSimulationBtn" onclick="stopSimulation()" style="display:none;">시뮬레이션 종료</button>
+
+<script src="/js/maze.js"></script> <!-- JS 파일 외부로 분리 -->
+
 <script>
 	function openRanking() {
-	  document.getElementById('rankingModal').style.display = 'flex';
+	  const modal = document.getElementById('rankingModal');
+	  const iframe = document.getElementById('rankingIframe');
+
+	  // iframe 새로고침해서 최신 데이터 요청
+	  iframe.contentWindow.location.reload();
+
+	  modal.style.display = 'flex';
 	}
+
 	function closeRanking() {
 	  document.getElementById('rankingModal').style.display = 'none';
 	}

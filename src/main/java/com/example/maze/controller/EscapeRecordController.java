@@ -37,13 +37,13 @@ public class EscapeRecordController {
         String username = userDetails.getUsername();
 
         List<RankingResponse> topRankings = escapeRecordService.getTopRankings();
-        int userRank = escapeRecordService.getUserRank(username);
-        EscapeRecord myBest = escapeRecordService.getBestRecordByUser(username);
+        RankingResponse myBest = escapeRecordService.getMyBest(username);
+        int myRank = escapeRecordService.getUserRank(username);
 
         Map<String, Object> response = new HashMap<>();
         response.put("topRankings", topRankings);
-        response.put("myRank", userRank);
         response.put("myBest", myBest);
+        response.put("myRank", myRank);
 
         return ResponseEntity.ok(response);
     }

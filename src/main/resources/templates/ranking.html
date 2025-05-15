@@ -37,7 +37,9 @@
 
 	  data.topRankings.forEach((r, idx) => {
 		const tr = document.createElement('tr');
-		if (r.username === data.myBest?.user?.username) tr.classList.add('my-rank');
+		if (r.username === data.myBest?.username) {
+		  tr.classList.add('my-rank');
+		}
 		tr.innerHTML = `
 		  <td>${idx + 1}</td>
 		  <td>${r.username}</td>
@@ -50,13 +52,14 @@
 	  const my = data.myBest;
 	  if (my) {
 		document.getElementById('myRecord').innerText =
-		  `순위: ${data.myRank}위, 시간: ${my.elapsedTime.toFixed(2)}초, 이동: ${my.moveCount}회`;
+		  `순위: ${data.myRank}위, 시간: ${my.bestTime.toFixed(2)}초, 이동: ${my.moveCount}회`;
 	  } else {
 		document.getElementById('myRecord').innerText = '기록이 없습니다.';
 	  }
 	}
 
-	loadRanking();
+	// iframe 로딩 후 랭킹 데이터를 로드하기 위해 이벤트 등록
+	window.onload = loadRanking;
 </script>
 </body>
 </html>
