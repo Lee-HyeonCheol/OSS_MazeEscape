@@ -20,4 +20,10 @@ public class PageController {
     public String homePage() {
         return "home";  // resources/templates/home.html
     }
+
+    @GetMapping("/ranking")
+    public String rankingPage() {
+        return "ranking"; // ranking.html
+    }
+
 }

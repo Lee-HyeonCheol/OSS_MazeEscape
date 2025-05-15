@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>랭킹</title>
+	<style>
+		body { font-family: Arial, sans-serif; margin: 20px; }
+		table { border-collapse: collapse; width: 100%; }
+		th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+		th { background-color: #f2f2f2; }
+		.my-rank { background-color: #d1ffd1; font-weight: bold; }
+	</style>
+</head>
+<body>
+<h2>전체 랭킹</h2>
+<table id="rankingTable">
+	<thead>
+	<tr>
+		<th>순위</th>
+		<th>사용자</th>
+		<th>최고 시간(초)</th>
+		<th>이동 횟수</th>
+	</tr>
+	</thead>
+	<tbody></tbody>
+</table>
+<h3>내 기록</h3>
+<div id="myRecord"></div>
+
+<script>
+	async function loadRanking() {
+	  const res = await fetch('/result/ranking');
+	  const data = await res.json();
+
+	  const tbody = document.querySelector('#rankingTable tbody');
+	  tbody.innerHTML = '';
+
+	  data.topRankings.forEach((r, idx) => {
+		const tr = document.createElement('tr');
+		if (r.username === data.myBest?.user?.username) tr.classList.add('my-rank');
+		tr.innerHTML = `
+		  <td>${idx + 1}</td>
+		  <td>${r.username}</td>
+		  <td>${r.bestTime.toFixed(2)}</td>
+		  <td>${r.moveCount}</td>
+		`;
+		tbody.appendChild(tr);
+	  });
+
+	  const my = data.myBest;
+	  if (my) {
+		document.getElementById('myRecord').innerText =
+		  `순위: ${data.myRank}위, 시간: ${my.elapsedTime.toFixed(2)}초, 이동: ${my.moveCount}회`;
+	  } else {
+		document.getElementById('myRecord').innerText = '기록이 없습니다.';
+	  }
+	}
+
+	loadRanking();
+</script>
+</body>
+</html>
