@@ -54,7 +54,13 @@
 <h3>생성된 미로:</h3>
 <div id="mazeContainer"></div>
 
-<button id="stopSimulationBtn" onclick="stopSimulation()" style="display:none;">시뮬레이션 종료</button>
+<button id="userSimulationBtn" onclick="startSimulation('User')">사용자 시뮬레이션</button>
+<button id="dfsSimulationBtn" onclick="startSimulation('DFS')">DFS 시뮬레이션</button>
+<button id="bfsSimulationBtn" onclick="startSimulation('BFS')">BFS 시뮬레이션</button>
+<button id="aStarSimulationBtn" onclick="startSimulation('AStar')">A* 시뮬레이션</button>
+<button id="rightHandSimulationBtn" onclick="startSimulation('RightHand')">오른손 법칙 시뮬레이션</button>
+<button id="stopSimulationBtn" onclick="stopSimulation()" disabled style="display:none;">시뮬레이션 종료</button>
+
 
 <script src="/js/maze.js"></script> <!-- JS 파일 외부로 분리 -->
 
