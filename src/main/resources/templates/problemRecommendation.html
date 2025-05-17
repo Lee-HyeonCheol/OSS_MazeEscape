@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<title>문제 추천</title>
+	<style>
+		body { font-family: Arial, sans-serif; padding: 20px; }
+		h2 { margin-bottom: 10px; }
+		select, button { margin: 10px 5px; padding: 8px; }
+		ul { margin-top: 20px; }
+		li { padding: 5px 0; }
+	</style>
+</head>
+<body>
+<h2>문제 추천</h2>
+
+<label for="difficultySelect">난이도 선택:</label>
+<select id="difficultySelect">
+	<option value="all">전체</option>
+	<option value="easy">하</option>
+	<option value="medium">중</option>
+	<option value="hard">상</option>
+</select>
+
+<button onclick="recommendProblems()">추천 받기</button>
+
+<ul id="problemList"></ul>
+
+<button onclick="goBack()">← 알고리즘 설명으로 돌아가기</button>
+
+<script>
+	const problems = [
+	  { name: "DFS 미로 탐색", algorithm: "DFS", difficulty: "easy" },
+	  { name: "BFS 탈출 경로 찾기", algorithm: "BFS", difficulty: "medium" },
+	  { name: "A* 최단 경로", algorithm: "AStar", difficulty: "hard" },
+	  { name: "오른손 법칙 미로", algorithm: "RightHand", difficulty: "easy" },
+	  { name: "BFS+DFS 혼합 문제", algorithm: "Mixed", difficulty: "hard" },
+	];
+
+	function recommendProblems() {
+	  const difficulty = document.getElementById('difficultySelect').value;
+	  const list = document.getElementById('problemList');
+	  list.innerHTML = '';
+
+	  const filtered = difficulty === 'all'
+		? problems
+		: problems.filter(p => p.difficulty === difficulty);
+
+	  if (filtered.length === 0) {
+		list.innerHTML = '<li>추천 가능한 문제가 없습니다.</li>';
+		return;
+	  }
+
+	  filtered.forEach(problem => {
+		const li = document.createElement('li');
+		li.textContent = `[${problem.algorithm}] ${problem.name} (${problem.difficulty})`;
+		list.appendChild(li);
+	  });
+	}
+
+	function goBack() {
+	  window.location.href = '/algorithm-description';
+	}
+</script>
+</body>
+</html>

@@ -141,7 +141,6 @@ document.addEventListener('keydown', e => {
                 const elapsedTime = ((performance.now() - startTime) / 1000).toFixed(2);
                 alert(`🏁 도착했습니다!\n⏱ 시간: ${elapsedTime}초\n🚶 이동 횟수: ${moveCount}회`);
 
-
                 fetch("/result/save", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
