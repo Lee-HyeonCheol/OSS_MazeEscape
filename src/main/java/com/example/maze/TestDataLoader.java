@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import com.example.maze.domain.EscapeRecord;
 import com.example.maze.repository.EscapeRecordRepository;
+
 import java.time.LocalDateTime;
 
 

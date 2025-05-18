@@ -4,6 +4,7 @@ package com.example.maze.strategy;
 import com.example.maze.dto.SimulationResponse;
 import com.example.maze.util.Position;
 import com.example.maze.util.MazeConstants;
+
 import static com.example.maze.util.MazeUtil.*;
 
 import java.util.ArrayList;
@@ -55,10 +56,14 @@ public class DFSSolver implements MazeSolver {
             return;
         }
 
-        dfs(maze, x - 1, y); if (!found) fullExploredPath.add(new Position(x, y));
-        dfs(maze, x + 1, y); if (!found) fullExploredPath.add(new Position(x, y));
-        dfs(maze, x, y - 1); if (!found) fullExploredPath.add(new Position(x, y));
-        dfs(maze, x, y + 1); if (!found) fullExploredPath.add(new Position(x, y));
+        dfs(maze, x - 1, y);
+        if (!found) fullExploredPath.add(new Position(x, y));
+        dfs(maze, x + 1, y);
+        if (!found) fullExploredPath.add(new Position(x, y));
+        dfs(maze, x, y - 1);
+        if (!found) fullExploredPath.add(new Position(x, y));
+        dfs(maze, x, y + 1);
+        if (!found) fullExploredPath.add(new Position(x, y));
 
         if (!found) finalPath.remove(finalPath.size() - 1);
     }

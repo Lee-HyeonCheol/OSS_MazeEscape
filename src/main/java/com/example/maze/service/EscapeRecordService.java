@@ -7,6 +7,7 @@ import com.example.maze.dto.RankingResponse;
 import com.example.maze.repository.EscapeRecordRepository;
 import com.example.maze.repository.UserEntityRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
@@ -91,7 +92,10 @@ public class EscapeRecordService {
                 .orElseThrow(() -> new IllegalArgumentException("기록 없음"));
 
         try {
-            return objectMapper.readValue(record.getMovePathJson(), List.class);
+            return objectMapper.readValue(
+                    record.getMovePathJson(),
+                    new TypeReference<List<List<Integer>>>() {}
+            );
         } catch (JsonProcessingException e) {
             throw new RuntimeException("이동 경로 JSON 파싱 실패", e);
         }

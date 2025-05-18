@@ -4,6 +4,7 @@ package com.example.maze.strategy;
 import com.example.maze.dto.SimulationResponse;
 import com.example.maze.util.Position;
 import com.example.maze.util.MazeConstants;
+
 import static com.example.maze.util.MazeUtil.*;
 
 import java.util.*;
@@ -68,7 +69,7 @@ public class AStarSolver implements MazeSolver {
     }
 
     private List<Position> getNeighbors(Position p, int[][] maze) {
-        int[][] dirs = {{-1,0},{1,0},{0,-1},{0,1}};
+        int[][] dirs = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
         List<Position> result = new ArrayList<>();
         for (int[] d : dirs) {
             int nx = p.getX() + d[0];

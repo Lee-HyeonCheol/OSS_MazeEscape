@@ -64,7 +64,7 @@ public class MazeGenerator {
     }
 
     private static void addWalls(int x, int y, int size, boolean[][] visited, List<Wall> walls) {
-        int[][] directions = { {0,2}, {0,-2}, {2,0}, {-2,0} };
+        int[][] directions = {{0, 2}, {0, -2}, {2, 0}, {-2, 0}};
 
         for (int[] dir : directions) {
             int nx = x + dir[0];

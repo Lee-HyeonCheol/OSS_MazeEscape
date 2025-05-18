@@ -4,6 +4,7 @@ package com.example.maze.strategy;
 import com.example.maze.dto.SimulationResponse;
 import com.example.maze.util.Position;
 import com.example.maze.util.MazeConstants;
+
 import static com.example.maze.util.MazeUtil.*;
 
 import java.util.ArrayList;
@@ -37,7 +38,8 @@ public class RightHandSolver implements MazeSolver {
             int[] r = DIRS[right];
             if (isPath(maze, x + r[0], y + r[1])) {
                 dir = right;
-                x += r[0]; y += r[1];
+                x += r[0];
+                y += r[1];
                 path.add(new Position(x, y));
                 continue;
             }
@@ -45,7 +47,8 @@ public class RightHandSolver implements MazeSolver {
             // 직진
             int[] f = DIRS[dir];
             if (isPath(maze, x + f[0], y + f[1])) {
-                x += f[0]; y += f[1];
+                x += f[0];
+                y += f[1];
                 path.add(new Position(x, y));
                 continue;
             }
@@ -55,7 +58,8 @@ public class RightHandSolver implements MazeSolver {
             int[] l = DIRS[left];
             if (isPath(maze, x + l[0], y + l[1])) {
                 dir = left;
-                x += l[0]; y += l[1];
+                x += l[0];
+                y += l[1];
                 path.add(new Position(x, y));
                 continue;
             }
@@ -65,7 +69,8 @@ public class RightHandSolver implements MazeSolver {
             int[] b = DIRS[back];
             if (isPath(maze, x + b[0], y + b[1])) {
                 dir = back;
-                x += b[0]; y += b[1];
+                x += b[0];
+                y += b[1];
                 path.add(new Position(x, y));
                 continue;
             }
