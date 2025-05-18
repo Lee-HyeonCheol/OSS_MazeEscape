@@ -40,8 +40,8 @@ function generateMaze() {
   fetch(`/maze/create?size=${size}`)
     .then(response => response.json())
     .then(data => {
-      mazeData = data;
-      [playerX, playerY] = findStart(data);
+      mazeData = data.maze ?? data;  // maze 필드가 있으면 사용, 없으면 그대로
+      [playerX, playerY] = findStart(mazeData);
       drawMaze();
     });
 }
@@ -101,7 +101,7 @@ function updatePlayerPosition(prevX, prevY, nextX, nextY) {
 }
 
 document.addEventListener('keydown', e => {
-    if (hasEscaped) return;
+    if (hasEscaped || simulationInterval) return;
 
     const direction = {
         ArrowUp: [-1, 0],
@@ -159,7 +159,7 @@ document.addEventListener('keydown', e => {
                     btn.disabled = false;
                   });
 
-                showSimulationButton();
+                showSimulationButtons();
             }
         }
     }
@@ -208,6 +208,7 @@ function clearPlayerMarker() {
 }
 
 
+// 서버 기반 시뮬레이션 경로 가져오기 및 시뮬레이션 실행
 function startSimulation(type) {
   if (simulationInterval) stopSimulation();
   clearPlayerMarker();
@@ -220,46 +221,38 @@ function startSimulation(type) {
   const simBtn = document.getElementById(btnId);
   if (simBtn) simBtn.disabled = true;
 
-  switch(type) {
-    case 'User':
-      currentSimPath = movePath;
-      break;
-    case 'DFS':
-      currentSimPath = dfsSimulationPath(mazeData).fullExploredPath;
-      break;
-    case 'BFS':
-      currentSimPath = bfsSimulationPath(mazeData).fullExploredPath;
-      break;
-    case 'AStar':
-      currentSimPath = aStarSimulationPath(mazeData).fullExploredPath;
-      break;
-    case 'RightHand':
-      currentSimPath = rightHandSimulationPath(mazeData);
-      break;
-    default:
-      alert('알 수 없는 시뮬레이션 타입입니다.');
-      return;
+  // User 경로는 클라이언트에서 기록한 movePath 사용
+  if (type === 'User') {
+    currentSimPath = movePath;
+    runSimulation();
+    return;
   }
 
+  // 서버에 시뮬레이션 경로 요청
+  fetch(`/simulation/${type.toLowerCase()}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ maze: mazeData })
+  })
+  .then(res => res.json())
+  .then(data => {
+    // fullExploredPath: [ {x: 0, y:1}, ... ]
+    currentSimPath = data.fullExploredPath.map(p => [p.x, p.y]);
+    runSimulation();
+  })
+  .catch(err => {
+    console.error("시뮬레이션 요청 실패:", err);
+    alert("시뮬레이션 요청에 실패했습니다.");
+  });
+}
+
+function runSimulation() {
   if (!currentSimPath || currentSimPath.length === 0) {
-    alert('경로가 없습니다.');
+    alert("경로가 없습니다.");
     return;
   }
 
-  const endPos = findEndPosition(mazeData);
-  if (!endPos) {
-    alert('도착 위치를 찾을 수 없습니다.');
-    return;
-  }
-  const [endX, endY] = endPos;
-
-  currentSimPath = removeConsecutive(currentSimPath, endX, endY);
-
-  if (currentSimPath.length === 0) {
-    alert('정리된 경로가 비어있습니다.');
-    return;
-  }
-
+  currentSimPath = removeConsecutive(currentSimPath);
   currentSimIndex = 0;
   playerX = currentSimPath[0][0];
   playerY = currentSimPath[0][1];
@@ -273,7 +266,7 @@ function startSimulation(type) {
     currentSimIndex++;
     if (currentSimIndex >= currentSimPath.length) {
       stopSimulation();
-      alert('시뮬레이션 종료');
+      alert("시뮬레이션 종료");
       return;
     }
     const [x, y] = currentSimPath[currentSimIndex];
@@ -282,6 +275,7 @@ function startSimulation(type) {
     playerY = y;
   }, 300);
 }
+
 
 function stopSimulation() {
   if (simulationInterval) {
@@ -299,26 +293,8 @@ function stopSimulation() {
 }
 
 
-function findStartPosition(maze) {
-  for (let i = 0; i < maze.length; i++) {
-    for (let j = 0; j < maze[0].length; j++) {
-      if (maze[i][j] === 2) return [i, j];
-    }
-  }
-  return null;
-}
-
-function findEndPosition(maze) {
-  for (let i = 0; i < maze.length; i++) {
-    for (let j = 0; j < maze[0].length; j++) {
-      if (maze[i][j] === 3) return [i, j];
-    }
-  }
-  return null;
-}
-
-function removeConsecutive(path, endX, endY) {
-  if (path.length === 0) return path;
+function removeConsecutive(path) {
+  if (!path || path.length === 0) return [];
 
   const newPath = [path[0]];
 
@@ -327,308 +303,9 @@ function removeConsecutive(path, endX, endY) {
     const [currX, currY] = path[i];
 
     if (prevX !== currX || prevY !== currY) {
-      newPath.push(path[i]);
-
-      // 목적지 도달 시점에서 즉시 반환
-      if (currX === endX && currY === endY) {
-        return newPath;
-      }
+      newPath.push([currX, currY]);
     }
   }
 
   return newPath;
-}
-
-
-function dfsSimulationPath(maze) {
-  const [startX, startY] = findStartPosition(maze);
-  const [endX, endY] = findEndPosition(maze);
-
-  const visited = Array.from({ length: maze.length }, () => Array(maze[0].length).fill(false));
-  const path = [];
-  const exploredPath = [];
-
-  let found = false;
-
-  function dfs(x, y) {
-    if (found) return;
-
-    if (
-      x < 0 || y < 0 ||
-      x >= maze.length || y >= maze[0].length ||
-      maze[x][y] === 1 || visited[x][y]
-    ) return;
-
-    visited[x][y] = true;
-
-    // 방문하는 모든 셀 기록 (이동하는 경로)
-    exploredPath.push([x, y]);
-    path.push([x, y]);
-
-    if (x === endX && y === endY) {
-      found = true;
-      return;
-    }
-
-    // 4방향 탐색
-    dfs(x - 1, y);
-    if (!found) exploredPath.push([x, y]); // 백트래킹 경로 기록
-
-    dfs(x + 1, y);
-    if (!found) exploredPath.push([x, y]);
-
-    dfs(x, y - 1);
-    if (!found) exploredPath.push([x, y]);
-
-    dfs(x, y + 1);
-    if (!found) exploredPath.push([x, y]);
-
-    if (!found) path.pop();
-  }
-
-  dfs(startX, startY);
-
-  return {
-    finalPath: found ? path : [],
-    fullExploredPath: exploredPath
-  };
-}
-
-
-function bfsSimulationPath(maze) {
-  const [startX, startY] = findStartPosition(maze);
-  const [endX, endY] = findEndPosition(maze);
-  const rows = maze.length;
-  const cols = maze[0].length;
-
-  const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
-  const parent = Array.from({ length: rows }, () => Array(cols).fill(null));
-  const exploredPath = [];
-
-  const queue = [];
-  queue.push([startX, startY]);
-  visited[startX][startY] = true;
-  exploredPath.push([startX, startY]);
-
-  let found = false;
-
-  while (queue.length > 0) {
-    const [x, y] = queue.shift();
-
-	if (found) break;
-    if (x === endX && y === endY) {
-      found = true;
-      break; // 목적지 도달하면 즉시 탐색 종료
-    }
-
-    const directions = [
-      [x - 1, y],
-      [x + 1, y],
-      [x, y - 1],
-      [x, y + 1]
-    ];
-
-    for (const [nx, ny] of directions) {
-      if (
-        nx >= 0 && ny >= 0 && nx < rows && ny < cols &&
-        !visited[nx][ny] &&
-        maze[nx][ny] !== 1 &&
-        !found // 목적지 도달 전까지만 탐색
-      ) {
-        queue.push([nx, ny]);
-        visited[nx][ny] = true;
-        parent[nx][ny] = [x, y];
-        exploredPath.push([nx, ny]);
-      }
-    }
-  }
-
-  // 최종 경로 복원
-  const finalPath = [];
-  if (found) {
-    let cur = [endX, endY];
-    while (cur) {
-      finalPath.push(cur);
-      cur = parent[cur[0]][cur[1]];
-    }
-    finalPath.reverse();
-  }
-
-  return {
-    finalPath: finalPath,
-    fullExploredPath: exploredPath
-  };
-}
-
-
-function rightHandSimulationPath(maze) {
-  const [startX, startY] = findStartPosition(maze);
-  const [endX, endY] = findEndPosition(maze);
-  const rows = maze.length;
-  const cols = maze[0].length;
-
-  // 방향: 0=북,1=동,2=남,3=서
-  let dir = 0;
-  let x = startX;
-  let y = startY;
-
-  const path = [[x, y]];
-  const visited = new Set();
-
-  function isPath(nx, ny) {
-    return (
-      nx >= 0 && ny >= 0 &&
-      nx < rows && ny < cols &&
-      maze[nx][ny] !== 1
-    );
-  }
-
-  while (!(x === endX && y === endY)) {
-    // 오른쪽 방향
-    let rightDir = (dir + 1) % 4;
-    let [rx, ry] = moveInDirection(x, y, rightDir);
-
-    if (isPath(rx, ry)) {
-      dir = rightDir;
-      x = rx;
-      y = ry;
-      path.push([x, y]);
-      continue;
-    }
-
-    // 앞으로
-    let [fx, fy] = moveInDirection(x, y, dir);
-    if (isPath(fx, fy)) {
-      x = fx;
-      y = fy;
-      path.push([x, y]);
-      continue;
-    }
-
-    // 왼쪽
-    let leftDir = (dir + 3) % 4;
-    let [lx, ly] = moveInDirection(x, y, leftDir);
-    if (isPath(lx, ly)) {
-      dir = leftDir;
-      x = lx;
-      y = ly;
-      path.push([x, y]);
-      continue;
-    }
-
-    // 뒤로 (후진)
-    let backDir = (dir + 2) % 4;
-    let [bx, by] = moveInDirection(x, y, backDir);
-    if (isPath(bx, by)) {
-      dir = backDir;
-      x = bx;
-      y = by;
-      path.push([x, y]);
-      continue;
-    }
-
-    // 막힘 (불가능한 경우)
-    break;
-  }
-
-  return path;
-}
-
-function moveInDirection(x, y, dir) {
-  switch(dir) {
-    case 0: return [x - 1, y]; // 북
-    case 1: return [x, y + 1]; // 동
-    case 2: return [x + 1, y]; // 남
-    case 3: return [x, y - 1]; // 서
-  }
-}
-
-
-function aStarSimulationPath(maze) {
-  const [startX, startY] = findStartPosition(maze);
-  const [endX, endY] = findEndPosition(maze);
-  const rows = maze.length;
-  const cols = maze[0].length;
-
-  function heuristic(x, y) {
-    return Math.abs(x - endX) + Math.abs(y - endY);
-  }
-
-  let openSet = [];
-  let cameFrom = new Map();
-  let gScore = Array.from({ length: rows }, () => Array(cols).fill(Infinity));
-  let fScore = Array.from({ length: rows }, () => Array(cols).fill(Infinity));
-  let closedSet = Array.from({ length: rows }, () => Array(cols).fill(false));
-
-  function nodeKey(x, y) {
-    return `${x},${y}`;
-  }
-
-  gScore[startX][startY] = 0;
-  fScore[startX][startY] = heuristic(startX, startY);
-
-  openSet.push({ x: startX, y: startY, f: fScore[startX][startY] });
-
-  const exploredPath = [];
-  exploredPath.push([startX, startY]);
-
-  while (openSet.length > 0) {
-    openSet.sort((a, b) => a.f - b.f);
-    const current = openSet.shift();
-    const { x, y } = current;
-
-    if (closedSet[x][y]) continue;
-
-    closedSet[x][y] = true;
-
-    // 방문(확정) 노드 기록
-    exploredPath.push([x, y]);
-
-    if (x === endX && y === endY) {
-      // 경로 복원
-      const path = [];
-      let curKey = nodeKey(x, y);
-      while (cameFrom.has(curKey)) {
-        const [cx, cy] = curKey.split(',').map(Number);
-        path.push([cx, cy]);
-        curKey = cameFrom.get(curKey);
-      }
-      path.push([startX, startY]);
-      path.reverse();
-
-      return { finalPath: path, fullExploredPath: exploredPath };
-    }
-
-    const neighbors = [
-      [x - 1, y],
-      [x + 1, y],
-      [x, y - 1],
-      [x, y + 1],
-    ];
-
-    for (const [nx, ny] of neighbors) {
-      if (
-        nx < 0 || ny < 0 || nx >= rows || ny >= cols ||
-        maze[nx][ny] === 1 || closedSet[nx][ny]
-      ) continue;
-
-      const tentativeG = gScore[x][y] + 1;
-
-      if (tentativeG < gScore[nx][ny]) {
-        cameFrom.set(nodeKey(nx, ny), nodeKey(x, y));
-        gScore[nx][ny] = tentativeG;
-        fScore[nx][ny] = tentativeG + heuristic(nx, ny);
-
-        if (!openSet.some(n => n.x === nx && n.y === ny)) {
-          openSet.push({ x: nx, y: ny, f: fScore[nx][ny] });
-
-          // 방문 후보로 추가될 때도 기록 (선택사항)
-          exploredPath.push([nx, ny]);
-        }
-      }
-    }
-  }
-
-  // 경로 못 찾음
-  return { finalPath: [], fullExploredPath: exploredPath };
 }

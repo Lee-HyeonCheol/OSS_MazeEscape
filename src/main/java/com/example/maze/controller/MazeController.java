@@ -1,6 +1,8 @@
 package com.example.maze.controller;
 
+import com.example.maze.dto.MazeResponse;
 import com.example.maze.service.MazeService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,7 +16,8 @@ public class MazeController {
     }
 
     @GetMapping("/create")
-    public int[][] createMaze(@RequestParam(defaultValue = "10") int size) {
-        return mazeService.createMaze(size);
+    public ResponseEntity<MazeResponse> createMaze(@RequestParam int size) {
+        int[][] maze = mazeService.createMaze(size);
+        return ResponseEntity.ok(new MazeResponse(maze));
     }
 }
