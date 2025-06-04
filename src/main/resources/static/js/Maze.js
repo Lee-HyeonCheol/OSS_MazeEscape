@@ -83,8 +83,12 @@ function findStart(grid) {
 function drawMaze() {
     const container = document.getElementById('mazeContainer');
     container.innerHTML = '';
-    container.style.gridTemplateColumns = `repeat(${mazeData[0].length}, 25px)`;
-    container.className = 'maze-grid';
+
+    const grid = document.createElement('div');
+    grid.className = 'maze-grid';
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = `repeat(${mazeData[0].length}, 25px)`;
+    grid.style.gap = '2px';
 
     for (let i = 0; i < mazeData.length; i++) {
         for (let j = 0; j < mazeData[0].length; j++) {
@@ -100,12 +104,14 @@ function drawMaze() {
             div.dataset.x = i.toString();
             div.dataset.y = j.toString();
 
-            container.appendChild(div);
+            grid.appendChild(div);
         }
     }
 
+    container.appendChild(grid);
     updatePlayerPosition(null, null, playerX, playerY);
 }
+
 
 function updatePlayerPosition(prevX, prevY, nextX, nextY) {
     if (prevX !== null && prevY !== null) {
@@ -119,6 +125,9 @@ function updatePlayerPosition(prevX, prevY, nextX, nextY) {
 }
 
 document.addEventListener('keydown', e => {
+	if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault();  // 기본 스크롤 방지
+    }
     if (hasEscaped || simulationInterval) return;
 
     const direction = {
@@ -341,35 +350,33 @@ function showSimulationButtons() {
         { id: 'rightHandSimulationBtn', text: '오른손 법칙 시뮬레이션', onClick: () => startSimulation('RightHand') },
     ];
 
+    const buttonBar = document.getElementById('simulationButtonBar');
+    buttonBar.innerHTML = ''; // Clear previous buttons
+
     simButtons.forEach(({ id, text, onClick }) => {
-        let btn = document.getElementById(id);
-        if (!btn) {
-            btn = document.createElement('button');
-            btn.id = id;
-            btn.innerText = text;
-            btn.onclick = onClick;
-            btn.classList.add('simulation-btn');
-            document.body.appendChild(btn);
-        }
-        btn.style.display = 'inline-block';
-        btn.disabled = false;
+        const btn = document.createElement('button');
+        btn.id = id;
+        btn.innerText = text;
+        btn.onclick = onClick;
+        btn.classList.add('simulation-btn');
+        buttonBar.appendChild(btn);
     });
 
-    const stopBtnId = 'stopSimulationBtn';
-    let stopBtn = document.getElementById(stopBtnId);
-    if (!stopBtn) {
-        stopBtn = document.createElement('button');
-        stopBtn.id = stopBtnId;
-        stopBtn.innerText = '시뮬레이션 종료';
-        stopBtn.onclick = stopSimulation;
-        document.body.appendChild(stopBtn);
-    }
+    // 종료 버튼도 이 안에
+    const stopBtn = document.createElement('button');
+    stopBtn.id = 'stopSimulationBtn';
+    stopBtn.innerText = '시뮬레이션 종료';
+    stopBtn.onclick = stopSimulation;
+    stopBtn.classList.add('simulation-btn');
     stopBtn.style.display = 'none';
     stopBtn.disabled = true;
+    buttonBar.appendChild(stopBtn);
 
     showSimulationResults();
     showSimulationSpeedControls();
 }
+
+
 
 function showSimulationResults() {
     const panel = document.getElementById('resultPanel');
@@ -388,53 +395,45 @@ function showSimulationResults() {
 }
 
 function showSimulationSpeedControls() {
-    const speedPanelId = 'speedControlPanel';
-    let panel = document.getElementById(speedPanelId);
-    if (!panel) {
-        panel = document.createElement('div');
-        panel.id = speedPanelId;
-        panel.style.marginTop = '10px';
+    const panel = document.getElementById('speedControlPanel');
+    panel.innerHTML = ''; // 기존 내용 초기화
 
-        const label = document.createElement('span');
-        label.textContent = '⏱ 시뮬레이션 속도: ';
-        panel.appendChild(label);
+    const label = document.createElement('span');
+    label.textContent = '⏱ 시뮬레이션 속도: ';
+    panel.appendChild(label);
 
-        const speeds = [
-            { label: '느리게', value: 600 },
-            { label: '보통', value: 300 },
-            { label: '빠르게', value: 100 },
-            { label: '초고속', value: 30 }
-        ];
+    const speeds = [
+        { label: '느리게', value: 600 },
+        { label: '보통', value: 300 },
+        { label: '빠르게', value: 100 },
+        { label: '초고속', value: 30 }
+    ];
 
-        speeds.forEach(({ label, value }) => {
-            const btn = document.createElement('button');
-            btn.textContent = label;
-            btn.onclick = () => {
-                simulationSpeed = value;
+    speeds.forEach(({ label, value }) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.classList.add('speed-button');
+        btn.onclick = () => {
+            simulationSpeed = value;
 
-                // 이전 버튼 활성화 및 스타일 제거
-                if (currentSpeedBtn) {
-                    currentSpeedBtn.classList.remove('active-speed');
-                    currentSpeedBtn.disabled = false;
-                }
+            if (currentSpeedBtn) {
+                currentSpeedBtn.classList.remove('active-speed');
+                currentSpeedBtn.disabled = false;
+            }
 
-                // 현재 버튼 비활성화 및 스타일 지정
-                btn.classList.add('active-speed');
-                btn.disabled = true;
-                currentSpeedBtn = btn;
+            btn.classList.add('active-speed');
+            btn.disabled = true;
+            currentSpeedBtn = btn;
 
-                console.log(`속도 설정됨: ${value}ms`);
-            };
-            btn.style.margin = '0 5px';
-            panel.appendChild(btn);
+            console.log(`속도 설정됨: ${value}ms`);
+        };
 
-            if (value === simulationSpeed) {
-                    btn.classList.add('active-speed');
-                    btn.disabled = true;
-                    currentSpeedBtn = btn;
-                }
-        });
+        if (value === simulationSpeed) {
+            btn.classList.add('active-speed');
+            btn.disabled = true;
+            currentSpeedBtn = btn;
+        }
 
-        document.body.appendChild(panel);
-    }
+        panel.appendChild(btn);
+    });
 }

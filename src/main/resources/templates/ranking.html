@@ -3,25 +3,7 @@
 <head>
 	<meta charset="UTF-8"/>
 	<title>랭킹</title>
-	<style>
-		body { font-family: Arial, sans-serif; margin: 20px; }
-		#closeBtn {
-			position: absolute;
-			top: 10px;
-			right: 10px;
-			background-color: #f44336;
-			color: white;
-			border: none;
-			padding: 5px 10px;
-			cursor: pointer;
-			font-weight: bold;
-			z-index: 100;
-		}
-		table { border-collapse: collapse; width: 100%; }
-		th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
-		th { background-color: #f2f2f2; }
-		.my-rank { background-color: #d1ffd1; font-weight: bold; }
-	</style>
+	<link rel="stylesheet" href="/css/ranking-style.css">
 </head>
 <body>
 
@@ -72,7 +54,7 @@
 	  const my = data.myBest;
 	  if (my) {
 		document.getElementById('myRecord').innerText =
-		  `순위: ${data.myRank}위, 미로 크기: ${my.mazeSize}, 시간: ${my.elapsedTime.toFixed(2)}초, 이동: ${my.moveCount}회, 점수: ${my.score}`;
+		  `미로 크기: ${my.mazeSize}, 시간: ${my.elapsedTime.toFixed(2)}초, 이동: ${my.moveCount}회, 점수: ${my.score}`;
 	  } else {
 		document.getElementById('myRecord').innerText = '기록이 없습니다.';
 	  }

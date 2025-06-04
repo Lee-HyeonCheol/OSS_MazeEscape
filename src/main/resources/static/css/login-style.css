@@ -1,0 +1,86 @@
+/* 전체 레이아웃과 배경 설정 */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: url('/images/dark-bg1.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+/* 제목 */
+h2 {
+  margin-bottom: 30px;
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px #000;
+}
+
+/* 폼 전체 */
+form {
+  background: rgba(0, 0, 0, 0.75);
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-width: 300px;
+}
+
+/* 라벨 */
+label {
+  font-weight: bold;
+}
+
+/* 입력창 */
+input[type="text"],
+input[type="password"] {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  width: 100%;
+}
+
+/* 버튼 */
+button[type="submit"] {
+  padding: 10px;
+  background-color: white;
+  color: black;
+  font-weight: bold;
+  font-size: 16px;
+  border: 2px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #eee;
+}
+
+/* 오류 메시지 */
+div[th\\:if] p {
+  color: #ff4d4d;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+/* 회원가입 안내 */
+p {
+  margin-top: 20px;
+}
+
+a {
+  color: #88ccff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

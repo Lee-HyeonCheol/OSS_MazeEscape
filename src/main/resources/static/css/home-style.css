@@ -1,0 +1,189 @@
+/* ===== 전체 공통 ===== */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: url('/images/dark-bg1.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h2 {
+  margin-top: 30px;
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px #000;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #ffffff;
+  color: #000000;
+  font-weight: bold;
+  font-size: 14px;
+  border: 2px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.1s ease-in-out;
+}
+button:hover {
+  transform: scale(1.05);
+  background-color: #ddd;
+}
+
+input[type="number"] {
+  border-radius: 4px;
+  border: 1px solid #aaa;
+  padding: 6px 10px;
+  width: 80px;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+.error-message {
+  color: red;
+  margin-top: 5px;
+}
+
+
+/* ===== 상단 네비게이션 ===== */
+.top-nav {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+/* ===== 미로 설정 UI ===== */
+.maze-settings {
+  margin: 20px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ===== 미로 및 시뮬레이션 ===== */
+.maze-and-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+#mazeContainer {
+  margin: 10px;
+  padding: 10px;
+  background-color: #111;
+  box-shadow: 0 0 20px rgba(255,255,255,0.1);
+  display: inline-block;
+}
+
+.maze-grid {
+  display: grid;
+  gap: 2px;
+}
+
+.cell {
+  width: 25px;
+  height: 25px;
+  border: 1px solid #333;
+  box-sizing: border-box;
+}
+.wall { background-color: black; }
+.path, .start { background-color: white; }
+.end { background-color: crimson; }
+.player { background-color: limegreen !important; }
+
+/* ===== 시뮬레이션 버튼 + 속도 ===== */
+.sim-controls-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.simulation-button-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.simulation-button-bar button {
+  min-width: 140px;
+}
+
+.speed-control-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.speed-button {
+  padding: 6px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  background-color: #444;
+  color: white;
+  border: 1px solid #777;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.speed-button:hover {
+  background-color: #666;
+}
+.active-speed {
+  background-color: #88ccff !important;
+  color: #000 !important;
+  font-weight: bold;
+}
+
+/* ===== 랭킹 모달 ===== */
+#rankingModal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+#rankingIframe {
+  width: 60vw;
+  height: 80vh;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(255,255,255,0.5);
+  background: white;
+}
+
+/* ===== 결과 패널 ===== */
+#resultPanel {
+  display: none;
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  width: 250px;
+  background: #222;
+  padding: 15px;
+  color: #fff;
+  border-left: 2px solid #555;
+  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.my-rank {
+  background-color: #d1ffd1 !important;
+  font-weight: bold;
+}
