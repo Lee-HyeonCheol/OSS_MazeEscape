@@ -37,7 +37,7 @@ public class TestDataLoader implements CommandLineRunner {
             // 테스트용 미로 탈출 기록 생성
             escapeRecordRepository.save(EscapeRecord.builder()
                     .user(user1)
-                    .mazeSize(8)
+                    .mazeSize(9)
                     .elapsedTime(12.5)
                     .moveCount(20)
                     .createdAt(LocalDateTime.now())
@@ -45,7 +45,7 @@ public class TestDataLoader implements CommandLineRunner {
 
             escapeRecordRepository.save(EscapeRecord.builder()
                     .user(user2)
-                    .mazeSize(8)
+                    .mazeSize(9)
                     .elapsedTime(10.2)
                     .moveCount(18)
                     .createdAt(LocalDateTime.now())

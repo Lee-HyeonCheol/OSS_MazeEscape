@@ -8,7 +8,23 @@ import lombok.Getter;
 @AllArgsConstructor
 public class RankingResponse {
     private String username;
-    private double bestTime;
+    private double elapsedTime;
     private int moveCount;
+    private int mazeSize;
+    private int score;
+
+    public RankingResponse(String username, double elapsedTime, int moveCount, int mazeSize) {
+        this.username = username;
+        this.elapsedTime = elapsedTime;
+        this.moveCount = moveCount;
+        this.mazeSize = mazeSize;
+        this.score = calculateScore();
+    }
+
+    private int calculateScore() {
+        return (int) (3000 * Math.pow(mazeSize, 1.3) /
+                        (elapsedTime * 1.5 + moveCount * 1.2));
+    }
 
 }
+

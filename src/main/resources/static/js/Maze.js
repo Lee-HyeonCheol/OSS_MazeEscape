@@ -11,14 +11,41 @@ let movePath = []; // 이동 경로 기록용 배열
 let simulationInterval = null;
 let currentSimPath = [];
 let currentSimIndex = 0;
+let simulationSpeed = 300;
+
+let simulationResults = [];  // 알고리즘별 경로 데이터 저장
 
 function generateMaze() {
+	const input = document.getElementById('size');
+    const error = document.getElementById('error');
+    let val = parseInt(input.value);
+
+    // 오류 조건 검사
+    if (isNaN(val)) {
+        error.textContent = "숫자를 입력해주세요.";
+        return;
+    }
+    if (val < 3) {
+        error.textContent = "미로 사이즈는 3 이상이어야 합니다.";
+        return;
+    }
+
+    // 짝수면 보정
+    if (val % 2 === 0) {
+        val -= 1;
+        input.value = val;
+    }
+
+    error.textContent = ""; // 오류 없으면 메시지 제거
+
     if (simulationInterval) {
         stopSimulation();
     }
     hasStarted = false;
     hasEscaped = false;
     movePath = [];
+	simulationResults = [];
+	document.getElementById('resultPanel').style.display = 'none';
 
     size = parseInt(document.getElementById('size').value, 10);
 
@@ -132,6 +159,14 @@ document.addEventListener('keydown', e => {
                 const elapsedTime = ((performance.now() - startTime) / 1000).toFixed(2);
                 alert(`🏁 도착했습니다!\n⏱ 시간: ${elapsedTime}초\n🚶 이동 횟수: ${moveCount}회`);
 
+				if (!simulationResults.some(r => r.algorithm === 'User')) {
+                    simulationResults.push({
+                        algorithm: 'User',
+                        moveCount: movePath.length,
+                        success: true
+                    });
+                }
+
                 fetch("/result/save", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -156,41 +191,6 @@ document.addEventListener('keydown', e => {
     }
 });
 
-function showSimulationButtons() {
-    const simButtons = [
-        { id: 'userSimulationBtn', text: '사용자 시뮬레이션 보기', onClick: () => startSimulation('User') },
-        { id: 'dfsSimulationBtn', text: 'DFS 시뮬레이션', onClick: () => startSimulation('DFS') },
-        { id: 'bfsSimulationBtn', text: 'BFS 시뮬레이션', onClick: () => startSimulation('BFS') },
-        { id: 'aStarSimulationBtn', text: 'A* 시뮬레이션', onClick: () => startSimulation('AStar') },
-        { id: 'rightHandSimulationBtn', text: '오른손 법칙 시뮬레이션', onClick: () => startSimulation('RightHand') },
-    ];
-
-    simButtons.forEach(({ id, text, onClick }) => {
-        let btn = document.getElementById(id);
-        if (!btn) {
-            btn = document.createElement('button');
-            btn.id = id;
-            btn.innerText = text;
-            btn.onclick = onClick;
-            document.body.appendChild(btn);
-        }
-        btn.style.display = 'inline-block';
-        btn.disabled = false;
-    });
-
-    const stopBtnId = 'stopSimulationBtn';
-    let stopBtn = document.getElementById(stopBtnId);
-    if (!stopBtn) {
-        stopBtn = document.createElement('button');
-        stopBtn.id = stopBtnId;
-        stopBtn.innerText = '시뮬레이션 종료';
-        stopBtn.onclick = stopSimulation;
-        document.body.appendChild(stopBtn);
-    }
-    stopBtn.style.display = 'none';
-    stopBtn.disabled = true;
-}
-
 function clearPlayerMarker() {
     const prevPlayerCell = document.querySelector('.cell.player');
     if (prevPlayerCell) prevPlayerCell.classList.remove('player');
@@ -200,13 +200,25 @@ function startSimulation(type) {
     if (simulationInterval) stopSimulation();
     clearPlayerMarker();
 
-    document.querySelectorAll('button[id$="SimulationBtn"]').forEach(btn => {
+    document.querySelectorAll('.simulation-btn').forEach(btn => {
         btn.disabled = false;
+        btn.classList.remove('disabled-sim');  // 초기화
     });
 
-    const btnId = type.toLowerCase() + 'SimulationBtn';
+    let btnId;
+    switch (type) {
+        case 'AStar': btnId = 'aStarSimulationBtn'; break;
+        case 'RightHand': btnId = 'rightHandSimulationBtn'; break;
+        case 'MinimumDistance': btnId = 'minimumDistanceSimulationBtn'; break;
+        case 'User': btnId = 'userSimulationBtn'; break;
+        default: btnId = type.toLowerCase() + 'SimulationBtn'; break;
+    }
+
     const simBtn = document.getElementById(btnId);
-    if (simBtn) simBtn.disabled = true;
+    if (simBtn) {
+        simBtn.disabled = true;
+        simBtn.classList.add('disabled-sim');  //  회색화
+    }
 
     if (type === 'User') {
         currentSimPath = movePath;
@@ -221,7 +233,24 @@ function startSimulation(type) {
     })
         .then(res => res.json())
         .then(data => {
-            currentSimPath = data.fullExploredPath.map(p => [p.x, p.y]);
+            if (type === 'MinimumDistance') {
+                currentSimPath = data.finalPath.map(p => [p.x, p.y]); // 최단경로만 사용
+            } else {
+                currentSimPath = data.fullExploredPath.map(p => [p.x, p.y]); // 전체 경로사용
+            }
+
+			currentSimPath = removeConsecutive(currentSimPath);
+
+			//  경로 길이 저장
+            const existing = simulationResults.find(r => r.algorithm === type);
+            if (!existing) {
+                simulationResults.push({
+                    algorithm: type,
+                    moveCount: currentSimPath.length,
+                    success: currentSimPath.length > 0
+                });
+            }
+
             runSimulation();
         })
         .catch(err => {
@@ -236,7 +265,8 @@ function runSimulation() {
         return;
     }
 
-    currentSimPath = removeConsecutive(currentSimPath);
+    showSimulationResults();
+
     currentSimIndex = 0;
     playerX = currentSimPath[0][0];
     playerY = currentSimPath[0][1];
@@ -246,28 +276,37 @@ function runSimulation() {
     stopBtn.disabled = false;
     stopBtn.style.display = 'inline-block';
 
-    simulationInterval = setInterval(() => {
+    simulationInterval = true;  // 실행 중 여부 체크용 플래그
+
+    function step() {
+        if (!simulationInterval) return;  // 종료되었으면 중단
+
         currentSimIndex++;
         if (currentSimIndex >= currentSimPath.length) {
             stopSimulation();
             alert("시뮬레이션 종료");
             return;
         }
+
         const [x, y] = currentSimPath[currentSimIndex];
         updatePlayerPosition(playerX, playerY, x, y);
         playerX = x;
         playerY = y;
-    }, 300);
+
+        // 다음 단계 예약 (현재 simulationSpeed를 반영)
+        setTimeout(step, simulationSpeed);
+    }
+
+    setTimeout(step, simulationSpeed);  // 첫 스텝 시작
 }
 
 function stopSimulation() {
-    if (simulationInterval) {
-        clearInterval(simulationInterval);
-        simulationInterval = null;
-    }
+    simulationInterval = false;
 
-    document.querySelectorAll('button[id$="SimulationBtn"]').forEach(btn => {
+    document.querySelectorAll('.simulation-btn').forEach(btn => {
         btn.disabled = false;
+        btn.classList.remove('disabled-sim');
+        btn.classList.remove('active-simulation');
     });
 
     const stopBtn = document.getElementById('stopSimulationBtn');
@@ -290,4 +329,112 @@ function removeConsecutive(path) {
     }
 
     return newPath;
+}
+
+function showSimulationButtons() {
+    const simButtons = [
+        { id: 'minimumDistanceSimulationBtn', text: '최단 거리 시뮬레이션', onClick: () => startSimulation('MinimumDistance') },
+        { id: 'userSimulationBtn', text: '사용자 시뮬레이션 보기', onClick: () => startSimulation('User') },
+        { id: 'dfsSimulationBtn', text: 'DFS 시뮬레이션', onClick: () => startSimulation('DFS') },
+        { id: 'bfsSimulationBtn', text: 'BFS 시뮬레이션', onClick: () => startSimulation('BFS') },
+        { id: 'aStarSimulationBtn', text: 'A* 시뮬레이션', onClick: () => startSimulation('AStar') },
+        { id: 'rightHandSimulationBtn', text: '오른손 법칙 시뮬레이션', onClick: () => startSimulation('RightHand') },
+    ];
+
+    simButtons.forEach(({ id, text, onClick }) => {
+        let btn = document.getElementById(id);
+        if (!btn) {
+            btn = document.createElement('button');
+            btn.id = id;
+            btn.innerText = text;
+            btn.onclick = onClick;
+            btn.classList.add('simulation-btn');
+            document.body.appendChild(btn);
+        }
+        btn.style.display = 'inline-block';
+        btn.disabled = false;
+    });
+
+    const stopBtnId = 'stopSimulationBtn';
+    let stopBtn = document.getElementById(stopBtnId);
+    if (!stopBtn) {
+        stopBtn = document.createElement('button');
+        stopBtn.id = stopBtnId;
+        stopBtn.innerText = '시뮬레이션 종료';
+        stopBtn.onclick = stopSimulation;
+        document.body.appendChild(stopBtn);
+    }
+    stopBtn.style.display = 'none';
+    stopBtn.disabled = true;
+
+    showSimulationResults();
+    showSimulationSpeedControls();
+}
+
+function showSimulationResults() {
+    const panel = document.getElementById('resultPanel');
+    const list = document.getElementById('resultList');
+    panel.style.display = 'block';
+
+    // 오름차순 정렬
+    const sorted = [...simulationResults].sort((a, b) => a.moveCount - b.moveCount);
+
+    list.innerHTML = ''; // 초기화
+    sorted.forEach(result => {
+        const li = document.createElement('li');
+        li.textContent = `${result.algorithm} - ${result.success ? result.moveCount + '칸' : '실패'}`;
+        list.appendChild(li);
+    });
+}
+
+function showSimulationSpeedControls() {
+    const speedPanelId = 'speedControlPanel';
+    let panel = document.getElementById(speedPanelId);
+    if (!panel) {
+        panel = document.createElement('div');
+        panel.id = speedPanelId;
+        panel.style.marginTop = '10px';
+
+        const label = document.createElement('span');
+        label.textContent = '⏱ 시뮬레이션 속도: ';
+        panel.appendChild(label);
+
+        const speeds = [
+            { label: '느리게', value: 600 },
+            { label: '보통', value: 300 },
+            { label: '빠르게', value: 100 },
+            { label: '초고속', value: 30 }
+        ];
+
+        speeds.forEach(({ label, value }) => {
+            const btn = document.createElement('button');
+            btn.textContent = label;
+            btn.onclick = () => {
+                simulationSpeed = value;
+
+                // 이전 버튼 활성화 및 스타일 제거
+                if (currentSpeedBtn) {
+                    currentSpeedBtn.classList.remove('active-speed');
+                    currentSpeedBtn.disabled = false;
+                }
+
+                // 현재 버튼 비활성화 및 스타일 지정
+                btn.classList.add('active-speed');
+                btn.disabled = true;
+                currentSpeedBtn = btn;
+
+                console.log(`속도 설정됨: ${value}ms`);
+            };
+            btn.style.margin = '0 5px';
+            panel.appendChild(btn);
+
+            if (value === simulationSpeed) {
+                    btn.classList.add('active-speed');
+                    btn.disabled = true;
+                    currentSpeedBtn = btn;
+                }
+        });
+
+        document.body.appendChild(panel);
+    }
 }

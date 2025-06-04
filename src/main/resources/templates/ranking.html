@@ -5,26 +5,44 @@
 	<title>랭킹</title>
 	<style>
 		body { font-family: Arial, sans-serif; margin: 20px; }
+		#closeBtn {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			background-color: #f44336;
+			color: white;
+			border: none;
+			padding: 5px 10px;
+			cursor: pointer;
+			font-weight: bold;
+			z-index: 100;
+		}
 		table { border-collapse: collapse; width: 100%; }
-		th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+		th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
 		th { background-color: #f2f2f2; }
 		.my-rank { background-color: #d1ffd1; font-weight: bold; }
 	</style>
 </head>
 <body>
+
+<button id="closeBtn" onclick="parent.closeRanking()">닫기 ✕</button>
+
 <h2>전체 랭킹</h2>
 <table id="rankingTable">
 	<thead>
 	<tr>
 		<th>순위</th>
 		<th>사용자</th>
-		<th>최고 시간(초)</th>
-		<th>이동 횟수</th>
+		<th>미로 크기</th>
+		<th>시간(초)</th>
+		<th>이동 수</th>
+		<th>점수</th>
 	</tr>
 	</thead>
 	<tbody></tbody>
 </table>
-<h3>내 기록</h3>
+
+<h3>내 최고 기록</h3>
 <div id="myRecord"></div>
 
 <script>
@@ -43,8 +61,10 @@
 		tr.innerHTML = `
 		  <td>${idx + 1}</td>
 		  <td>${r.username}</td>
-		  <td>${r.bestTime.toFixed(2)}</td>
+		  <td>${r.mazeSize}</td>
+		  <td>${r.elapsedTime.toFixed(2)}</td>
 		  <td>${r.moveCount}</td>
+		  <td>${r.score}</td>
 		`;
 		tbody.appendChild(tr);
 	  });
@@ -52,14 +72,14 @@
 	  const my = data.myBest;
 	  if (my) {
 		document.getElementById('myRecord').innerText =
-		  `순위: ${data.myRank}위, 시간: ${my.bestTime.toFixed(2)}초, 이동: ${my.moveCount}회`;
+		  `순위: ${data.myRank}위, 미로 크기: ${my.mazeSize}, 시간: ${my.elapsedTime.toFixed(2)}초, 이동: ${my.moveCount}회, 점수: ${my.score}`;
 	  } else {
 		document.getElementById('myRecord').innerText = '기록이 없습니다.';
 	  }
 	}
 
-	// iframe 로딩 후 랭킹 데이터를 로드하기 위해 이벤트 등록
 	window.onload = loadRanking;
 </script>
+
 </body>
 </html>

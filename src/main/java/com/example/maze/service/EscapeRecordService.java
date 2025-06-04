@@ -12,7 +12,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,33 +56,27 @@ public class EscapeRecordService {
         recordRepository.save(record);
     }
 
-    // 전체 랭킹 조회 (유저별 최고기록 기준)
-    public List<RankingResponse> getTopRankings() {
-        List<Object[]> rawResults = recordRepository.findTopRankings();
+    public List<RankingResponse> getAllRankings() {
+        List<EscapeRecord> allRecords = recordRepository.findAllRecords();
 
-        return rawResults.stream()
-                .map(o -> new RankingResponse(
-                        (String) o[0],             // username
-                        (Double) o[1],             // bestTime
-                        (Integer) o[2]             // moveCount
+        return allRecords.stream()
+                .map(r -> new RankingResponse(
+                        r.getUser().getUsername(),
+                        r.getElapsedTime(),
+                        r.getMoveCount(),
+                        r.getMazeSize()
                 ))
+                .sorted(Comparator.comparingInt(RankingResponse::getScore).reversed())
                 .collect(Collectors.toList());
     }
 
-    // 현재 로그인한 유저의 최고 기록
     public RankingResponse getMyBest(String username) {
-        EscapeRecord record = recordRepository.findUserRecordsOrderByElapsedTime(username)
-                .stream()
-                .findFirst()
+        List<EscapeRecord> records = recordRepository.findUserRecordsOrderByElapsedTime(username);
+
+        return records.stream()
+                .map(r -> new RankingResponse(username, r.getElapsedTime(), r.getMoveCount(), r.getMazeSize()))
+                .max(Comparator.comparingInt(RankingResponse::getScore))
                 .orElse(null);
-
-        if (record == null) return null;
-
-        return new RankingResponse(
-                record.getUser().getUsername(),
-                record.getElapsedTime(),
-                record.getMoveCount()
-        );
     }
 
     // 현재 유저의 랭킹 순위

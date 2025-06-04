@@ -10,13 +10,8 @@ import java.util.List;
 
 public interface EscapeRecordRepository extends JpaRepository<EscapeRecord, Long> {
 
-    @Query(value = """
-            SELECT r.user.username AS username, MIN(r.elapsedTime) AS bestTime, r.moveCount AS moveCount
-            FROM EscapeRecord r
-            GROUP BY r.user.username, r.moveCount
-            ORDER BY bestTime ASC
-            """)
-    List<Object[]> findTopRankings();
+    @Query("SELECT r FROM EscapeRecord r")
+    List<EscapeRecord> findAllRecords();
 
     @Query(value = """
             SELECT COUNT(DISTINCT r2.user.id) + 1
@@ -39,4 +34,15 @@ public interface EscapeRecordRepository extends JpaRepository<EscapeRecord, Long
             ORDER BY r.elapsedTime ASC
             """)
     List<EscapeRecord> findUserRecordsOrderByElapsedTime(@Param("username") String username);
+
+    @Query("""
+        SELECT r FROM EscapeRecord r
+        WHERE r.user.username IN (
+            SELECT r2.user.username FROM EscapeRecord r2
+            GROUP BY r2.user.username
+        )
+        ORDER BY r.mazeSize DESC, r.elapsedTime ASC, r.moveCount ASC
+        """)
+    List<EscapeRecord> findAllRecordsForRanking();
+
 }

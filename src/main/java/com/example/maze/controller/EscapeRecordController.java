@@ -36,7 +36,7 @@ public class EscapeRecordController {
     public ResponseEntity<?> getRanking(@AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
 
-        List<RankingResponse> topRankings = escapeRecordService.getTopRankings();
+        List<RankingResponse> topRankings = escapeRecordService.getAllRankings();
         RankingResponse myBest = escapeRecordService.getMyBest(username);
         int myRank = escapeRecordService.getUserRank(username);
 

@@ -17,6 +17,7 @@ public class MazeController {
 
     @GetMapping("/create")
     public ResponseEntity<MazeResponse> createMaze(@RequestParam int size) {
+        if (size % 2 == 0) size--;
         int[][] maze = mazeService.createMaze(size);
         return ResponseEntity.ok(new MazeResponse(maze));
     }

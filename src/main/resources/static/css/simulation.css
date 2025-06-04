@@ -1,0 +1,27 @@
+.simulation-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.simulation-btn:hover {
+    background-color: #0056b3;
+}
+
+.simulation-btn.disabled-sim {
+    background-color: #ccc !important;
+    cursor: not-allowed;
+}
+
+.speed-btn.active-speed {
+    background-color: #ccc !important;
+    color: #666;
+    border: 1px solid #999;
+    font-weight: normal;
+    cursor: not-allowed;
+}

@@ -15,6 +15,7 @@ public class SimulationService {
             case "bfs" -> new BFSSolver();
             case "astar" -> new AStarSolver();
             case "righthand" -> new RightHandSolver();
+            case "minimumdistance" -> new DijkstraSolver();
             default -> throw new IllegalArgumentException("지원하지 않는 알고리즘입니다: " + type);
         };
         return solver.solve(maze);

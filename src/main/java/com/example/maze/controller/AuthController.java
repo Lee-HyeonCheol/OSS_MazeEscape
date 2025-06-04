@@ -7,6 +7,7 @@ import com.example.maze.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -19,10 +20,16 @@ public class AuthController {
     }
 
     @PostMapping("/auth/join")
-    public String join(UserJoinRequest request) {
-        userService.join(request);
-        return "redirect:/login";
+    public String join(UserJoinRequest request, Model model) {
+        try {
+            userService.join(request);
+            return "redirect:/login";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            return "join"; // 회원가입 폼으로 다시 돌아감
+        }
     }
+
 
     @PostMapping("/auth/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
