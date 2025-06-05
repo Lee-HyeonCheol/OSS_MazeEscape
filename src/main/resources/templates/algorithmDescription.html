@@ -4,6 +4,28 @@
 	<meta charset="UTF-8">
 	<title>알고리즘 설명</title>
 	<link rel="stylesheet" href="/css/algorithm-style.css">
+	<style>
+		body {
+		  font-family: Arial, sans-serif;
+		  padding: 20px;
+		}
+		button {
+		  margin: 5px;
+		}
+		pre.pseudocode {
+		  background-color: #f3f3f3;
+		  padding: 10px;
+		  overflow-x: auto;
+		  font-family: Consolas, "Courier New", monospace;
+		  font-size: 15px;
+		  line-height: 1.6;
+		  color: black;
+		}
+		.keyword { color: #0000ff; font-weight: bold; }
+		.function-name { color: #795e26; }
+		.param { color: #267f99; }
+		.literal { color: #098658; font-weight: bold; }
+	</style>
 </head>
 <body>
 <button id="goToHomeBtn" onclick="goHome()">홈으로 돌아가기</button>
@@ -26,54 +48,126 @@
 	const descriptions = {
 	  DFS: `
 		<h3>DFS (Depth-First Search)</h3>
-		<p>깊이 우선 탐색은 한 방향으로 끝까지 탐색한 후, 막히면 되돌아와서 다음 경로를 탐색하는 방식입니다.</p>
-		<ul>
-		  <li>재귀 또는 스택을 이용하여 구현</li>
-		  <li>시간 복잡도: O(V + E)</li>
-		  <li>백트래킹, 경로 찾기 문제 등에 활용됨</li>
-		</ul>
+		<p><strong>개념:</strong> 그래프의 한 지점을 시작으로 가능한 한 깊이 내려가며 탐색하다가, 더 이상 갈 곳이 없으면 되돌아오는 방식입니다.</p>
+		<p><strong>이론적 이해:</strong> 재귀 호출을 활용하거나 스택을 이용해 구현할 수 있습니다. 특히 백트래킹 문제(모든 가능한 경로 탐색)에서 유용합니다.</p>
+        <p><strong>특징:</strong></p>
+        <ul>
+          <li>시작점에서 가능한 한 깊이 내려가며 탐색</li>
+          <li>미로 찾기, 퍼즐 풀이, 조합 탐색 등에 적합</li>
+          <li>방문 체크를 하지 않으면 무한 루프 발생 가능</li>
+        </ul>
+        <p><strong>시간 복잡도:</strong> O(V + E)</p>
+        <p><strong>사용 예시:</strong> 미로에서 출구가 존재하는지 확인, 순열과 조합 생성, 그래프 사이클 탐지</p>
+		<p><strong>슈도코드:</strong></p>
+		<pre class="pseudocode">
+<span class="keyword">function</span> <span class="function-name">DFS</span>(<span class="param">node</span>, <span class="param">visited</span>):
+	visited[node] ← <span class="literal">true</span>
+	<span class="keyword">for</span> neighbor <span class="keyword">in</span> adjacencyList[node]:
+		<span class="keyword">if</span> <span class="keyword">not</span> visited[neighbor]:
+			<span class="function-name">DFS</span>(neighbor, visited)
+		</pre>
 	  `,
+
 	  BFS: `
 		<h3>BFS (Breadth-First Search)</h3>
-		<p>너비 우선 탐색은 인접한 노드부터 차례대로 탐색하는 방식입니다.</p>
-		<ul>
-		  <li>큐(Queue)를 사용하여 레벨 순서대로 탐색</li>
-		  <li>최단 거리 문제에 적합</li>
-		  <li>시간 복잡도: O(V + E)</li>
-		</ul>
+		<p><strong>개념:</strong> 시작점으로부터 가까운 노드부터 차례로 탐색해 나가는 방식입니다.</p>
+		<p><strong>이론적 이해:</strong> FIFO 구조인 큐(Queue)를 사용하며, 각 레벨 단위로 탐색해 나갑니다.</p>
+        <p><strong>특징:</strong></p>
+        <ul>
+          <li>최단 거리 탐색에 적합 (모든 간선 가중치가 동일한 경우)</li>
+          <li>그래프 탐색, 경로 찾기, 네트워크 전파 등에서 자주 사용</li>
+          <li>탐색 순서가 명확히 정의됨</li>
+        </ul>
+        <p><strong>시간 복잡도:</strong> O(V + E)</p>
+        <p><strong>사용 예시:</strong> 미로에서 최단 거리 찾기, 최단 이동 횟수 계산, 레벨 순회</p>
+		<p><strong>슈도코드:</strong></p>
+		<pre class="pseudocode">
+<span class="keyword">function</span> <span class="function-name">BFS</span>(<span class="param">start</span>):
+	queue ← [<span class="param">start</span>]
+	visited[start] ← <span class="literal">true</span>
+	<span class="keyword">while</span> queue is not empty:
+		node ← queue.dequeue()
+		<span class="keyword">for</span> neighbor <span class="keyword">in</span> adjacencyList[node]:
+			<span class="keyword">if</span> <span class="keyword">not</span> visited[neighbor]:
+				visited[neighbor] ← <span class="literal">true</span>
+				queue.enqueue(neighbor)
+		</pre>
 	  `,
+
 	  AStar: `
 		<h3>A* (A Star Algorithm)</h3>
-		<p>A* 알고리즘은 시작점에서 목표점까지의 최적 경로를 찾기 위해 휴리스틱 함수를 사용하는 탐색 알고리즘입니다.</p>
-		<ul>
-		  <li>f = g + h (g: 실제 거리, h: 휴리스틱)</li>
-		  <li>우선순위 큐 기반 탐색</li>
-		  <li>시간 복잡도: O(E), 구현에 따라 다양</li>
-		</ul>
+		<p><strong>개념:</strong> 휴리스틱을 활용하여 목표 지점까지의 최적 경로를 찾는 탐색 알고리즘입니다.</p>
+		 <p><strong>이론적 이해:</strong> f(n) = g(n) + h(n), 여기서 g(n)은 시작점부터 현재 노드까지의 실제 비용, h(n)은 현재 노드에서 목표까지의 추정 비용입니다.</p>
+        <p><strong>특징:</strong></p>
+        <ul>
+          <li>우선순위 큐(Heap)를 사용하여 가장 유망한 경로를 우선 탐색</li>
+          <li>휴리스틱이 정확할수록 빠르고 정확함</li>
+          <li>다익스트라와 유사하지만 휴리스틱을 추가로 사용</li>
+        </ul>
+        <p><strong>시간 복잡도:</strong> O(E) 또는 O(V log V), 구현에 따라 다름</p>
+        <p><strong>사용 예시:</strong> 지도 기반 경로 탐색(Google Maps), 게임 AI 길찾기</p>
+		<p><strong>슈도코드:</strong></p>
+		<pre class="pseudocode">
+<span class="keyword">function</span> <span class="function-name">AStar</span>(<span class="param">start</span>, <span class="param">goal</span>):
+	openSet ← priority queue with start
+	gScore[start] ← <span class="literal">0</span>
+	fScore[start] ← h(start)
+
+	<span class="keyword">while</span> openSet is not empty:
+		current ← node in openSet with lowest fScore
+		<span class="keyword">if</span> current == goal:
+			<span class="keyword">return</span> reconstructPath(current)
+
+		remove current from openSet
+		<span class="keyword">for</span> neighbor <span class="keyword">in</span> neighbors(current):
+			tentative_gScore ← gScore[current] + dist(current, neighbor)
+			<span class="keyword">if</span> tentative_gScore < gScore[neighbor]:
+				cameFrom[neighbor] ← current
+				gScore[neighbor] ← tentative_gScore
+				fScore[neighbor] ← gScore[neighbor] + h(neighbor)
+				<span class="keyword">if</span> neighbor not in openSet:
+					add neighbor to openSet
+		</pre>
 	  `,
+
 	  RightHand: `
 		<h3>오른손 법칙</h3>
-		<p>항상 오른손을 벽에 대고 따라가며 출구를 찾는 미로 탐색 전략입니다.</p>
-		<ul>
-		  <li>단순하지만 모든 미로에서 유효하지는 않음</li>
-		  <li>방향 정보 필요 (북,동,남,서)</li>
-		  <li>현실 기반 시뮬레이션에 적합</li>
-		</ul>
+		<p><strong>개념:</strong> 미로 탐색 시 항상 오른손을 벽에 대고 움직이면 출구를 찾을 수 있다는 방식입니다.</p>
+		<p><strong>이론적 이해:</strong> 미로가 단일 연결(모든 벽이 연결)되어 있을 경우 유효하지만, 중앙에 고립된 출구가 있는 구조에서는 작동하지 않습니다.</p>
+        <p><strong>특징:</strong></p>
+        <ul>
+          <li>간단한 구현, 추가적인 자료구조 불필요</li>
+          <li>실제 사람이 미로를 탐색할 때 직관적으로 사용</li>
+          <li>미로 외부 벽과 접하지 않은 출구에서는 무한 반복될 수 있음</li>
+        </ul>
+        <p><strong>시간 복잡도:</strong> 일반적으로 O(N), 최악의 경우 O(N²)</p>
+        <p><strong>사용 예시:</strong> 로봇 시뮬레이션, 간단한 미로 탈출 게임</p>
+		<p><strong>슈도코드:</strong></p>
+		<pre class="pseudocode">
+<span class="keyword">function</span> <span class="function-name">RightHandMazeSolver</span>(<span class="param">start</span>, <span class="param">direction</span>):
+	<span class="keyword">while</span> <span class="keyword">not</span> atExit():
+		<span class="keyword">if</span> rightIsFree():
+			turnRight()
+			moveForward()
+		<span class="keyword">else if</span> frontIsFree():
+			moveForward()
+		<span class="keyword">else</span>:
+			turnLeft()
+		</pre>
 	  `
 	};
 
 	function showDescription(type) {
-	  const descDiv = document.getElementById('description');
-	  descDiv.innerHTML = descriptions[type] || '설명을 찾을 수 없습니다.';
+	  document.getElementById('description').innerHTML = descriptions[type] || '설명을 찾을 수 없습니다.';
 	}
 
 	function goToProblems() {
-	  window.location.href = '/problems'; // 문제 추천 페이지로 이동 (URL은 필요 시 수정)
+	  window.location.href = '/problems';
 	}
-	
+
 	function goHome() {
-    window.location.href = '/home'; // 실제 홈 URL 경로에 맞게 수정
-  }
+	  window.location.href = '/home';
+	}
 </script>
 </body>
 </html>

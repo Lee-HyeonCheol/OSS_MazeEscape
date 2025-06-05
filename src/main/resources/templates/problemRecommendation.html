@@ -8,46 +8,77 @@
 <body>
 <h2>문제 추천</h2>
 
-<label for="difficultySelect">난이도 선택:</label>
-<select id="difficultySelect">
-	<option value="all">전체</option>
-	<option value="easy">하</option>
-	<option value="medium">중</option>
-	<option value="hard">상</option>
-</select>
-
-<button onclick="recommendProblems()">추천 받기</button>
+<div>
+	<label for="difficultySelect">난이도 선택:</label>
+	<select id="difficultySelect">
+		<option value="easy">쉬움</option>
+		<option value="medium">중간</option>
+		<option value="hard">어려움</option>
+	</select>
+	
+	<button id="recommendBtn" onclick="recommendProblems()">추천 받기</button>
+</div>
 
 <ul id="problemList"></ul>
 
-<button onclick="goBack()">← 알고리즘 설명으로 돌아가기</button>
+<button id="backBtn" onclick="goBack()">← 알고리즘 설명으로 돌아가기</button>
 
 <script>
-	const problems = [
-	  { name: "DFS 미로 탐색", algorithm: "DFS", difficulty: "easy" },
-	  { name: "BFS 탈출 경로 찾기", algorithm: "BFS", difficulty: "medium" },
-	  { name: "A* 최단 경로", algorithm: "AStar", difficulty: "hard" },
-	  { name: "오른손 법칙 미로", algorithm: "RightHand", difficulty: "easy" },
-	  { name: "BFS+DFS 혼합 문제", algorithm: "Mixed", difficulty: "hard" },
-	];
+	const problems = {
+	  easy: [
+		{ number: 1260, title: "DFS와 BFS" },
+		{ number: 2178, title: "미로 탐색" },
+		{ number: 2606, title: "바이러스" },
+		{ number: 2667, title: "단지번호붙이기" },
+		{ number: 11403, title: "경로 찾기" },
+		{ number: 2468, title: "안전 영역" },
+		{ number: 18352, title: "특정 거리의 도시 찾기" },
+		{ number: 14940, title: "쉬운 최단거리" },
+		{ number: 24479, title: "알고리즘 수업 - 깊이 우선 탐색 1" },
+		{ number: 24444, title: "알고리즘 수업 - 너비 우선 탐색 1" }
+	  ],
+	  medium: [
+		{ number: 7576, title: "토마토" },
+		{ number: 1753, title: "최단경로" },
+		{ number: 14502, title: "연구소" },
+		{ number: 2206, title: "벽 부수고 이동하기" },
+		{ number: 13460, title: "구슬 탈출 2" },
+		{ number: 17472, title: "다리 만들기 2" },
+		{ number: 1194, title: "달이 차오른다, 가자." },
+		{ number: 16946, title: "벽 부수고 이동하기 4" },
+		{ number: 16940, title: "BFS 스페셜 저지" },
+		{ number: 16964, title: "DFS 스페셜 저지" }
+	  ],
+	  hard: [
+		{ number: 2887, title: "행성 터널" },
+		{ number: 3197, title: "백조의 호수" },
+		{ number: 2150, title: "Strongly Connected Component" },
+		{ number: 1948, title: "임계경로" },
+		{ number: 17071, title: "숨바꼭질 5" },
+		{ number: 1981, title: "배열에서 이동" },
+		{ number: 9376, title: "탈옥" },
+		{ number: 16959, title: "체스판 여행 1" },
+		{ number: 5719, title: "거의 최단 경로" },
+		{ number: 1396, title: "크루스칼의 공" }
+	  ]
+	};
 
 	function recommendProblems() {
 	  const difficulty = document.getElementById('difficultySelect').value;
 	  const list = document.getElementById('problemList');
 	  list.innerHTML = '';
 
-	  const filtered = difficulty === 'all'
-		? problems
-		: problems.filter(p => p.difficulty === difficulty);
+	  const selectedProblems = problems[difficulty];
+	  const shuffled = selectedProblems.sort(() => 0.5 - Math.random());
+	  const selected = shuffled.slice(0, 5);
 
-	  if (filtered.length === 0) {
-		list.innerHTML = '<li>추천 가능한 문제가 없습니다.</li>';
-		return;
-	  }
-
-	  filtered.forEach(problem => {
+	  selected.forEach(problem => {
 		const li = document.createElement('li');
-		li.textContent = `[${problem.algorithm}] ${problem.name} (${problem.difficulty})`;
+		const a = document.createElement('a');
+		a.href = `https://www.acmicpc.net/problem/${problem.number}`;
+		a.target = "_blank";
+		a.textContent = `[${problem.number}] ${problem.title}`;
+		li.appendChild(a);
 		list.appendChild(li);
 	  });
 	}
