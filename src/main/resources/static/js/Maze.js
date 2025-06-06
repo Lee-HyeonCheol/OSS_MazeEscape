@@ -29,6 +29,10 @@ function generateMaze() {
         error.textContent = "미로 사이즈는 3 이상이어야 합니다.";
         return;
     }
+    if (val > 200) {
+        error.textContent = "미로 사이즈는 200 이하이어야 합니다.";
+        return;
+    }
 
     // 짝수면 보정
     if (val % 2 === 0) {

@@ -103,6 +103,7 @@ input[type="number"] {
 .end { background-color: crimson; }
 .player { background-color: limegreen !important; }
 
+
 /* ===== 시뮬레이션 버튼 + 속도 ===== */
 .sim-controls-wrapper {
   display: flex;
