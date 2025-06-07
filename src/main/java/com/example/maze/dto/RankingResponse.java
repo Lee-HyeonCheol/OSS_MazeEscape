@@ -22,7 +22,7 @@ public class RankingResponse {
     }
 
     private int calculateScore() {
-        return (int) (3000 * Math.pow(mazeSize, 1.3) /
+        return (int) (3000 * Math.pow(mazeSize, 1.4) /
                         (elapsedTime * 1.5 + moveCount * 1.2));
     }
 
