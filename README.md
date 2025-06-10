@@ -27,7 +27,7 @@
 |------------|-----------------------------------------|
 | Backend    | Java 17+, Spring Boot 3.x, Spring Data JPA |
 | Frontend   | Thymeleaf (HTML 템플릿 엔진), CSS       |
-| Database   | MySQL (JPA 기반 ORM)                    |
+| Database   | MySQL or H2DB                          |
 | 형상 관리  | Git, GitHub                             |
 | 빌드 도구  | Gradle                                   |
 
