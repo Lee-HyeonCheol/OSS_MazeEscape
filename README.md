@@ -25,7 +25,7 @@
 
 | 분야       | 기술 스택                              |
 |------------|-----------------------------------------|
-| Backend    | Java 17+, Spring Boot 3.x, Spring Data JPA |
+| Backend    | Java 21+, Spring Boot 3, Spring Data JPA |
 | Frontend   | Thymeleaf (HTML 템플릿 엔진), CSS       |
 | Database   | MySQL or H2DB                          |
 | 형상 관리  | Git, GitHub                             |
